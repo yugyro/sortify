@@ -5,12 +5,25 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
+import pylast
 
 
 
 load_dotenv(dotenv_path=".env")
 
 
+# You have to have your own unique two values for API_KEY and API_SECRET
+# Obtain yours from https://www.last.fm/api/account/create for Last.fm
+API_KEY = os.getenv("LAST_FM_API_KEY")
+API_SECRET = os.getenv("LAST_FM_SHARED_SECRET")
+LAST_FM_USERNAME=os.getenv("LAST_FM_USERNAME")
+
+
+network = pylast.LastFMNetwork(
+    api_key=API_KEY,
+    api_secret=API_SECRET,
+    username=LAST_FM_USERNAME
+)
 
 client_id=os.getenv("SPOTIFY_CLIENT_ID")
 client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -43,7 +56,19 @@ while True:
                 artist_name=item['track']['artists'][0]['name']
 
                 print(f"🎵 NEW LIKED SONG: {track_name} by {artist_name}")
-        
+
+                lastfmtrack=network.get_track(artist_name,track_name)
+                if lastfmtrack:
+                    print("Track recieved")
+                else:
+                    print("track reception error")
+                tags=lastfmtrack.get_top_tags()[:3]
+                for tag in tags :
+                    if tag:
+                        print(tag.item.name,tag.weight)
+                    else:
+                        print("error")
+
         last_saved_tracks=current_saved_tracks
         time.sleep(30)
     except Exception as e:
