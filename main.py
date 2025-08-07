@@ -11,7 +11,6 @@ import pylast
 
 load_dotenv(dotenv_path=".env")
 
-
 # You have to have your own unique two values for API_KEY and API_SECRET
 # Obtain yours from https://www.last.fm/api/account/create for Last.fm
 API_KEY = os.getenv("LAST_FM_API_KEY")
@@ -32,6 +31,22 @@ redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
 scope="user-library-read"
 sp=spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
+
+"""""
+JSON object → Python dict
+JSON array → Python list
+JSON string → Python str
+JSON number → Python int or float
+"""
+def load_playlists_map(path="genre_playlist.json"):
+    with open(path,"r") as f:                                           #helper function 1 (loading map from json file)
+        return json.load(f)                                              
+
+def get_playlist(genre,mappings):                                       #helper function 2 (get playlist url from map)
+    return mappings.get(genre.lower())
+
+
+
 
 last_saved_tracks=set()
 
