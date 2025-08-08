@@ -38,7 +38,7 @@ JSON array → Python list
 JSON string → Python str
 JSON number → Python int or float
 """
-def load_playlists_map(path="genre_playlist.json"):
+def load_playlists_map(path="genre_playlists.json"):
     with open(path,"r") as f:                                           #helper function 1 (loading map from json file)
         return json.load(f)                                              
 
@@ -77,12 +77,19 @@ while True:
                     print("Track recieved")
                 else:
                     print("track reception error")
-                tags=lastfmtrack.get_top_tags()[:3]
+                tags=lastfmtrack.get_top_tags()[:4]
+                playlist_map=load_playlists_map()
                 for tag in tags :
                     if tag:
                         print(tag.item.name,tag.weight)
+                        if(tag in playlist_map):
+                            playlist_url=get_playlist(tag,playlist_map)
+                            sp.playlist_add_items(playlist_url,track_id)
+                            print("added {track_name} to playlist {tag.item.name}")
+                        else:
+                            print("{tag.item.name} playlist not available, moving to next tag")
                     else:
-                        print("error")
+                        print("coudnt obtain tags")
 
         last_saved_tracks=current_saved_tracks
         time.sleep(30)
