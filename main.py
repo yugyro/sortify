@@ -45,6 +45,28 @@ def load_playlists_map(path="genre_playlists.json"):
 def get_playlist(genre,mappings):                                       #helper function 2 (get playlist url from map)
     return mappings.get(genre.lower())
 
+synonyms={
+        "rap" : "hip-hop",
+        "hip hop":"hip-hop",
+        "hiphop":"hip-hop",
+        "kanye west":"hip-hop",
+        "trap":"hip-hop",
+
+        "sophisti-pop": "r&b",
+        "neo-soul":"r&b",
+        "olivia" : "r&b",
+        "rnb":"r&b",
+        "art pop":"r&b",
+        "soul":"r&b",
+        "alternative rnb":"r&b",
+        "pop":"r&b",
+
+        "hard rock":"rock",
+        "classic rock":"rock",
+        "80's":"rock"
+
+
+}
 
 
 
