@@ -6,6 +6,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import time
 import pylast
+import re
 
 
 
@@ -29,7 +30,8 @@ client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 redirect_uri = os.getenv("SPOTIPY_REDIRECT_URI")
 
 
-scope="user-library-read"
+scope="user-library-read playlist-modify-public playlist-modify-private"
+       
 sp=spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope))
 
 """""
@@ -60,15 +62,23 @@ synonyms={
         "soul":"r&b",
         "alternative rnb":"r&b",
         "pop":"r&b",
+        "indie":"r&b",
+        "indie pop":"r&b",
+        "drake":"r&b",
+        "partynextdoor":"r&b",
 
         "hard rock":"rock",
         "classic rock":"rock",
         "80's":"rock"
-
-
 }
+def parse_tag(tags):
+    tag_nonum=re.sub(r"\s+\d+$","",tags)
 
-
+    clean_tag=tag_nonum.strip().lower()
+    return clean_tag
+def normalize_tag(tag):
+    tag=parse_tag(tag)
+    return synonyms.get(tag,tag)
 
 last_saved_tracks=set()
 
@@ -103,13 +113,18 @@ while True:
                 playlist_map=load_playlists_map()
                 for tag in tags :
                     if tag:
-                        print(tag.item.name,tag.weight)
-                        if(tag in playlist_map):
-                            playlist_url=get_playlist(tag,playlist_map)
-                            sp.playlist_add_items(playlist_url,track_id)
-                            print("added {track_name} to playlist {tag.item.name}")
+                        normalized_tag=normalize_tag(tag.item.name)
+                        print(normalized_tag,tag.weight)
+                        if(normalized_tag in playlist_map):
+                            playlist_url=get_playlist(normalized_tag,playlist_map)
+                            if(playlist_url):
+                                track_uri=f"spotify:track:{track_id}"
+                                sp.playlist_add_items(playlist_url,[track_uri])
+                                print(f"added {track_name} to playlist {normalized_tag}")
+                            else:
+                                print("invalid playlist url")
                         else:
-                            print("{tag.item.name} playlist not available, moving to next tag")
+                            print(f"{normalized_tag} playlist not available, moving to next tag")
                     else:
                         print("coudnt obtain tags")
 
